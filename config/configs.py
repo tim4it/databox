@@ -1,5 +1,6 @@
 import logging
 import os
+import sys
 from dataclasses import dataclass
 from enum import Enum
 
@@ -70,7 +71,12 @@ class AppConfig:
 
 
 def get_local_config() -> AppConfig:
-    local_config_path = os.path.join(os.getcwd(), CONFIG_FOLDER, "config.yml")
+    if sys.path[0].endswith("test"):
+        # if we execute test cases in test folder
+        head, tail = os.path.split(sys.path[0])
+        local_config_path = os.path.join(head, CONFIG_FOLDER, f"{CONFIG_FOLDER}.yml")
+    else:
+        local_config_path = os.path.join(os.getcwd(), CONFIG_FOLDER, f"{CONFIG_FOLDER}.yml")
     # try to open local config file
     with open(local_config_path, "r") as yml_file:
         local_config_data = yaml.load(yml_file, Loader=yaml.FullLoader)

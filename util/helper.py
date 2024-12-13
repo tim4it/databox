@@ -9,6 +9,8 @@ def create_date_from_month_year(year: int, month: int) -> str:
     Creates an ISO 8601 string representing the first day of the given month and year.
     Format: YYYY-MM-DDT00:00:00
     """
+    if 1 > month > 12:
+        raise ValueError(f"Month must be in range (1 - 12), is: {month}")
     return datetime(year, month, 1).isoformat()
 
 

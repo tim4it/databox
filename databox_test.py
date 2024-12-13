@@ -6,6 +6,8 @@ from databox.rest import ApiException
 
 from util.helper import create_date_from_month_year
 
+# Only for testing purposes to see if data is pushed
+
 # Configuration setup for the Databox API client
 # The API token is used as the username for authentication
 # It's recommended to store your API token securely, e.g., in an environment variable

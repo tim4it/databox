@@ -27,6 +27,8 @@ async def push_data_to_databox(metrics: ResponseUnit, app_config: AppConfig) -> 
                            "application/vnd.databox.v2+json", ) as api_client:
         response_status = 200
         api_instance = databox.DefaultApi(api_client)
+        logger.info(f"Databox push, metric name: {metrics.databox_units[0].key}, "
+                    f"data type: {metrics.data_type}, metric length: {len(metrics.databox_units)}")
         try:
             api_instance.data_post(push_data=metrics.databox_units,
                                    _request_timeout=app_config.request_timeout.request_databox_total)
@@ -76,8 +78,8 @@ async def make_post_request(request_post: RequestPost,
     try:
         response_status = -1
         headers = {"Content-Type": "application/json"}
-        logger.info(
-            f"Making POST request to {request_post.url}, type {request_post.type.name} with data: {request_post.data}")
+        logger.info(f"Making POST request to {request_post.url}, type {request_post.type.name} "
+                    f"with data: {request_post.data}")
         async with session.post(request_post.url, json=request_post.data,
                                 headers=headers,
                                 timeout=aiohttp.ClientTimeout(connect=request_timeout.connection_timeout,
@@ -94,7 +96,9 @@ async def make_post_request(request_post: RequestPost,
             else:
                 logger.error(f"Wrong request type. Available: {request_post.type}")
                 raise ValueError("Wrong request type")
-            return data_point.parse()
+            parse = data_point.parse()
+            logging.info(f"Response data for type {request_post.type.name}, size: {len(parse.databox_units)}")
+            return parse
     except aiohttp.ClientError as e:
         logger.error(f"Error making request to {request_post}: {e}")
         return ResponseUnit([], [], request_post.type, response_status)
@@ -166,7 +170,7 @@ async def main() -> None:
         all_metrics.append(ResponseUnit([], birth_death_ratio, RequestType.BIRTH_DEATH_RATIO, 200))
         response_statuses = await push_to_databox(all_metrics, app_config)
         for metric in all_metrics:
-            logger.info(f"Metric({metric.data_type.name}): {metric}")
+            logger.info(f"Metric({metric.data_type.name}) stored: {metric}")
         logger.info(f"Databox responses: {response_statuses}")
     except BaseException as e:
         logger.error(f"Application error! {e}")
