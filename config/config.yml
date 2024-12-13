@@ -1,0 +1,48 @@
+requests:
+  average_pay:
+    url: https://pxweb.stat.si:443/SiStatData/api/v1/sl/Data/H285S.px
+    data:
+      query:
+        - code: PLAČE
+          selection:
+            filter: item
+            values: [ 2 ]
+      response:
+        format: json-stat2
+    metric_key: average_pay # databox metric key
+  birth_rate:
+    url: https://pxweb.stat.si:443/SiStatData/api/v1/sl/Data/05J1002S.px
+    data:
+      query:
+        - code: MERITVE
+          selection:
+            filter: item
+            values: [ 0 ]
+      response:
+        format: json-stat2
+    metric_key: birth_rate # databox metric key
+  death_rate:
+    url: https://pxweb.stat.si:443/SiStatData/api/v1/sl/Data/05L1002S.px
+    data:
+      query:
+        - code: SPOL
+          selection:
+            filter: item
+            values: [ 0 ]
+        - code: MERITVE
+          selection:
+            filter: item
+            values: [ 1 ]
+      response:
+        format: json-stat2
+    metric_key: death_rate # databox metric key
+  birth_death_ratio:
+    metric_key: birth_death_ratio # databox metric key
+request_timeouts:
+  connect_sec: 5
+  request_sec: 15
+  request_databox_total: 30
+databox_config:
+  host: https://push.databox.com
+  username: 7e0b21ad3ea140ff9c38bd407848ee77
+  push_parallel: True
