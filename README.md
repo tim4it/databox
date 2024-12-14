@@ -11,7 +11,7 @@
 - [Error response](#error-response)
 - [Logging, tracing](#logging-tracing)
 - [JWT token handling](#jwt-token-handling)
-- [databox](#databox)
+- [Databox](#databox)
 
 # Description
 
@@ -20,7 +20,7 @@
 * All four sources are pushed to `databox` as metrics with units.
 
 # Running
-Paython >3.10 is used. Run data pusher using `databox` python API:
+Python >3.10 is used. Run data pusher using `databox` python API:
 ```shell
 python3 databox_main.py
 ```
