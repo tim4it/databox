@@ -41,6 +41,7 @@ class AppConfig:
     requests: dict
     request_timeouts: dict
     databox_config: dict
+    periodic: dict
 
     def __post_init__(self):
         average_pay_main = RequestType.AVERAGE_PAY.name.lower()
@@ -67,6 +68,8 @@ class AppConfig:
             username=self.databox_config["username"],
             password="")
         self.databox_push_parallel = bool(self.databox_config["push_parallel"])
+        self.periodic_enabled = bool(self.periodic["enabled"])
+        self.periodic_time = int(self.periodic["time_sec"])
         self.requests: list[RequestPost] = [average_pay, birth_rate, death_rate]
 
 

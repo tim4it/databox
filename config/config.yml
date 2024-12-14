@@ -45,4 +45,7 @@ request_timeouts:
 databox_config:
   host: https://push.databox.com
   username: 7e0b21ad3ea140ff9c38bd407848ee77
-  push_parallel: True
+  push_parallel: True # enable parallel calls to databox
+periodic:
+  enabled: True # enable periodic retrieval of data and push
+  time_sec: 15

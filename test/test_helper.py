@@ -32,10 +32,10 @@ class TestHelper(TestCase):
             self.assertEqual(create_date_from_month_year(2055, -1), "2055-03-01T00:00:00")
 
     def test_from_str_to_enum(self):
-        from_str_to_enum(RequestType, "average_PAY")
-        from_str_to_enum(RequestType, "    birth_rate")
-        from_str_to_enum(RequestType, "DEATH_rate ")
-        from_str_to_enum(RequestType, "  BIRTH_death_rATIO ")
+        self.assertEqual(from_str_to_enum(RequestType, "average_PAY"), RequestType.AVERAGE_PAY)
+        self.assertEqual(from_str_to_enum(RequestType, "    birth_rate"), RequestType.BIRTH_RATE)
+        self.assertEqual(from_str_to_enum(RequestType, "DEATH_rate "), RequestType.DEATH_RATE)
+        self.assertEqual(from_str_to_enum(RequestType, "  BIRTH_death_rATIO "), RequestType.BIRTH_DEATH_RATIO)
 
     def test_from_str_to_enum_fail(self):
         with self.assertRaises(NotImplementedError):

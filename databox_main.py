@@ -162,9 +162,29 @@ async def get_birth_death_ratio(response_units: list[ResponseUnit],
     return databox_units
 
 
-async def main() -> None:
+async def periodically_send(app_config: AppConfig) -> None:
+    """
+    Periodically get data and send to databox push. Periodic time is defined in configuration
+    :param app_config: application config
+    :return: N/A
+    """
     try:
-        app_config = get_local_config()
+        while True:
+            await one_time_send(app_config)
+            logger.info(f"Wait to retrieve and push data, every {app_config.periodic_time} seconds!")
+            await asyncio.sleep(app_config.periodic_time)
+    except BaseException as e:
+        logger.error(f"Application error (periodic)! {e}")
+
+
+async def one_time_send(app_config: AppConfig) -> None:
+    """
+    Get data and send to databox push. This will get and push data only once
+    :param app_config: application config
+    :return: N/A
+    """
+    start_time = int(time.time_ns())
+    try:
         all_metrics = await get_all_metrics(app_config)
         birth_death_ratio = await get_birth_death_ratio(all_metrics, app_config)
         all_metrics.append(ResponseUnit([], birth_death_ratio, RequestType.BIRTH_DEATH_RATIO, 200))
@@ -172,20 +192,30 @@ async def main() -> None:
         for metric in all_metrics:
             logger.info(f"Metric({metric.data_type.name}) stored: {metric}")
         logger.info(f"Databox responses: {response_statuses}")
+
     except BaseException as e:
-        logger.error(f"Application error! {e}")
+        logger.error(f"Application error (one time)! {e}")
+    logger.info(f"Total execution time: {(int(time.time_ns()) - start_time) / 1_000_000:.2f} ms")
+
+
+async def main() -> None:
+    app_config = get_local_config()
+    if app_config.periodic_enabled:
+        await periodically_send(app_config)
+    else:
+        await one_time_send(app_config)
 
 
 if __name__ == "__main__":
+    # logging config
     logging.basicConfig(
         level=logging.INFO,
-        format="%(asctime)s - %(levelname)s - %(message)s",
+        format="%(asctime)s - %(levelname)s - %(threadName)s - %(message)s",
         handlers=[
             logging.FileHandler("app.log"),
             logging.StreamHandler()
         ]
     )
     logger = logging.getLogger(__name__)
-    start_time = int(time.time_ns())
+    # run main
     asyncio.run(main())
-    logger.info(f"Total execution time: {(int(time.time_ns()) - start_time) / 1_000_000:.2f} ms")
