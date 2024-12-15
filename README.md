@@ -20,7 +20,9 @@
 * All four sources are pushed to `databox` as metrics with units.
 
 # Running
-Python >3.10 is used. Run data pusher using `databox` python API:
+Python >=3.10 is used.
+
+Run data parser/pusher using `databox` python API:
 ```shell
 python3 databox_main.py
 ```
@@ -50,7 +52,7 @@ We want to parallelize as much as possible. First we retrieve data from differen
 
 # Scheduled events
 
-The best way to optimize data retrieval and push is if service support event based data retrieval. In this case we don't need to schedule the request and push, because we get the data/event as it is provided. When data is pushed from third party provider (Web socket, RPC, libp2p, redis pub/sub,..) we can get it and push it to `databox`.
+The best way to optimize data retrieval and push is, if service support event based data retrieval. In this case we don't need to schedule the request and push, because we get the data/event as it is provided by th third party service. When data is pushed from third party provider (Web socket, RPC, libp2p, redis pub/sub,..) we can get it, parse it and push it to `databox`.
 
 ## Alternatives
 
@@ -59,11 +61,9 @@ The best way to optimize data retrieval and push is if service support event bas
 3. `Exponential Backoff`: In case of repeated failures, implementing an exponential backoff strategy would be beneficial. This means increasing the time between retries exponentially (e.g., 1 second, 2 seconds, 4 seconds, etc.) to avoid overwhelming the failing endpoint.
 4. `Rate Limiting`: If the metrics endpoint has rate limits, we should implement rate limiting in application to avoid exceeding those limits.
 
-Email address using for `databox` app:
-
 # Data push improvements
 
-Since network is not 100% relabelled, we can use in-memory data structure before we push to `databox` (this can also be used in python, java, C#,.. databox libraries). We can use Queue data structure - this is more usable when we have streaming or more frequent retrieval of data. If we have error when pushing data, we still have this data in Queue memory - data is not lost, just waits for next iteration to be pushed. We can implement Queue facade that is able to flush inserted elements in configurable batches transparently, while elements are being added. This can be configurable:
+Since network is not 100% relabelled, we can use in-memory data structure before we push to `databox` (this can also be used in python, java, C#,.. databox libraries). We can use Queue data structure - this is more usable when we have streaming or more frequent retrieval of data. If we have error when pushing data to databox, we still have this data in Queue memory - data is not lost, just waits for next iteration to be pushed. We can implement Queue facade that is able to flush (push to databox) inserted elements in configurable batches transparently, while elements are being added from third party sources. This can be configurable:
 
 | Setting                   | Type     | Value   | Description                                                                                                        |
 |---------------------------|----------|---------|--------------------------------------------------------------------------------------------------------------------|
@@ -80,18 +80,18 @@ Configuration can be:
 - static (current in the project)
 - hot reloadable (for high availability systems)
 
-Fields that are sensitive in configuration must be stored in secure storage (best in the claud). Also retrieval must be secured or better encrypted using standard encryption/decryption.
+Fields that are sensitive in configuration must be stored in secure storage (best in the claud). Also, retrieval must be secured or better encrypted using standard encryption/decryption.
 
 # Error response
 
-Error needs to be displayed in standard way (https://developers.databox.com/responses-errors/). Latest standard is `RFC7807`, described here: https://www.rfc-editor.org/rfc/rfc7807.html. It defines Problem detail object where standard error is described. Also timestamp is recommended for additional time monitoring (recommended if we have server to server communication). Important: Errors messages should not be descriptive - this can give hacker attacking vector (check which system is used and find system vulnerability). Instead, descriptive error should be placed in internal logs (or logs from internal systems).     
+Error needs to be displayed in standard way (https://developers.databox.com/responses-errors/). Latest standard is `RFC7807`, described here: https://www.rfc-editor.org/rfc/rfc7807.html. It defines Problem detail object where standard error is described. Also timestamp is recommended for additional time monitoring (recommended if we have server to server communication). Important: Errors messages should not be descriptive - this can give hacker attacking vector (check which system is used and find system vulnerability). Instead, descriptive error should be placed in internal logs (or logs from internal systems) that are not visible from 'outsiders'.     
 
 # Logging, tracing
 
 Logging should be 'in one place' especially in modern microservice environment (e.g. `graylog` - https://graylog.org/) where we have multiple instances of same or different services. This simplifies debugging on tha system and between systems (we can use identifier between systems).
 
 Tracing is useful when we want to check for bottlenecks in our system. We can use `jaeger` (distributed tracing platform - https://www.jaegertracing.io/).
-Every function/method can be marked as tracing and then we can check detailed timings. With detail timings we can easily detect where bottlenecks are 
+Every function/method can be marked as tracing, and then we can check detailed timings. With detail timings we can easily detect where bottlenecks are 
 
 # JWT token handling
 
@@ -161,7 +161,3 @@ Databox app:
 
 Dashboard:
 - https://app.databox.com/datawall/e297a4f03a6b722781e33ed3ecfc92235bb2380675a1e7a
-
-TODO: 
-
-* jwt token handling
